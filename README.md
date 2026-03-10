@@ -2,6 +2,59 @@
 
 Nix flake packaging for [codeix](https://github.com/montanetech/codeix) — fast semantic code search for AI agents.
 
+## Installation via overlay (recommended)
+
+Add the overlay to your NixOS or home-manager configuration so that `pkgs.codeix` is available everywhere:
+
+```nix
+# flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    codeix-nix-flake.url = "github:sirati/codeix-nix-flake";
+  };
+
+  outputs = { nixpkgs, codeix-nix-flake, ... }: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        {
+          nixpkgs.overlays = [ codeix-nix-flake.overlays.default ];
+          environment.systemPackages = [ pkgs.codeix ];
+        }
+      ];
+    };
+  };
+}
+```
+
+For home-manager standalone:
+
+```nix
+# flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    codeix-nix-flake.url = "github:sirati/codeix-nix-flake";
+  };
+
+  outputs = { nixpkgs, home-manager, codeix-nix-flake, ... }: {
+    homeConfigurations.myuser = home-manager.lib.homeManagerConfiguration {
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        overlays = [ codeix-nix-flake.overlays.default ];
+      };
+      modules = [
+        { home.packages = [ pkgs.codeix ]; }
+      ];
+    };
+  };
+}
+```
+
+The overlay always installs the default release with all languages. For version or language customisation see [`lib.mkCodeix`](#quick-start) below.
+
 ## Quick start
 
 ```nix

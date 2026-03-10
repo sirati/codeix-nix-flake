@@ -53,6 +53,12 @@
         devShells.default = import ./dev.nix { inherit pkgs rustToolchain; };
       }
     ) // {
+      overlays = {
+        default = final: _prev: {
+          codeix = mkCodeix { pkgs = final; };
+        };
+      };
+
       lib = {
         inherit mkCodeix releases defaultRelease;
         availableLangs = [
